@@ -56,6 +56,7 @@ const App = () => {
     console.log(event.target.value)
     setNewFilter(event.target.value)
   }
+  
   const filtered = persons.filter((person) => {
       return person.name.search(new RegExp(newFilter, 'i')) >=0
   })
