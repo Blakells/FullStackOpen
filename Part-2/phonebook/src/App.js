@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
-import axios from '../node_modules/axios'
+import personService from './services/persons'
 
 const App = () => {
 
@@ -12,11 +12,11 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
 
   const hook = () => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(res => {
+    personService
+    .getAll()
+    .then(returnPeople => {
       console.log('rendered correctly')
-      setPersons(res.data)
+      setPersons(returnPeople)
     })
   }
   useEffect(hook, [])
@@ -30,16 +30,27 @@ const App = () => {
     }
     let foundName = persons.find(({ name }) => name === newName)
     let foundNumber = persons.find(({ number }) => number === newNumber)
-    if (foundName || foundNumber) {
-      alert(`${newName} or ${newNumber} is already added to the phonebook!`)
+    console.log(foundName)
+    if (foundName) {
+      const replace = window.confirm(`${foundName.name} is already added, replace the old number?`)
+      if (replace){
+        foundName.number = newNumber
+        personService
+      .update(foundName)
+      .then (people => {
+        console.log(people)
+        setPersons(persons.map(person => person.id !== people.id ? person : people))
+      })
+      }
     } else {
-      setPersons(persons.concat({
-        name: nameObject.name,
-        number: nameObject.number
-      }))
+      personService
+      .create(nameObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+      })
+    }
     setNewName('')
     setNewNumber('')
-    }
   }
 
   const handleNameChange = (event) => {
@@ -77,7 +88,7 @@ const App = () => {
 
       <h2>Numbers</h2>
 
-      <Persons persons={filtered} />
+      <Persons persons={filtered} setPersons={setPersons}/>
 
     </div>
   )
