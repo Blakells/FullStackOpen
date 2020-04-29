@@ -9,8 +9,8 @@ const getAll = () => {
         date: '2019-05-30T17:30:31.098Z',
         important: true,
       }
-    //   return req.then(response => response.data.concat(nonExisting))
-    return req.then(res => res.data)
+       return req.then(response => response.data.concat(nonExisting))
+    // return req.then(res => res.data)
 }
 
 const create = newObject => {

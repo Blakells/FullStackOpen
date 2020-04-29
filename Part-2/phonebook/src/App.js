@@ -3,13 +3,14 @@ import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import personService from './services/persons'
-
+import Notification from './components/errorMessage'
 const App = () => {
 
   const [ persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const hook = () => {
     personService
@@ -41,6 +42,10 @@ const App = () => {
         console.log(people)
         setPersons(persons.map(person => person.id !== people.id ? person : people))
       })
+      setErrorMessage(`Added ${nameObject.name}`)
+      setTimeout(() =>{
+        setErrorMessage(null)
+      }, 5000)
       }
     } else {
       personService
@@ -48,6 +53,10 @@ const App = () => {
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
       })
+      setErrorMessage(`Added ${nameObject.name}`)
+      setTimeout(() =>{
+        setErrorMessage(null)
+      }, 5000)
     }
     setNewName('')
     setNewNumber('')
@@ -67,7 +76,7 @@ const App = () => {
     console.log(event.target.value)
     setNewFilter(event.target.value)
   }
-  
+
   const filtered = persons.filter((person) => {
       return person.name.search(new RegExp(newFilter, 'i')) >=0
   })
@@ -75,7 +84,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Notification message={errorMessage}/>
       <Filter handleFilterChange={handleFilterChange} />
 
       <h2>Add a new name/number</h2>

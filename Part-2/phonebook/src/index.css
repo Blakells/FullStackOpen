@@ -1,0 +1,17 @@
+.error {
+  color: red;
+  background: lightgray;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+h2 {
+  color: rgb(80, 54, 230);
+  font-style: italic;
+}
+li {
+  color: slateblue;
+  padding-top: 5px;
+}
