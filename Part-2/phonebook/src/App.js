@@ -42,7 +42,10 @@ const App = () => {
         console.log(people)
         setPersons(persons.map(person => person.id !== people.id ? person : people))
       })
-      setErrorMessage(`Added ${nameObject.name}`)
+      .catch(err => {
+        setErrorMessage(`'${foundName.Name}' was already deleted from the server`)
+      })
+      setErrorMessage(`Added '${nameObject.name}'`)
       setTimeout(() =>{
         setErrorMessage(null)
       }, 5000)
@@ -53,7 +56,7 @@ const App = () => {
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
       })
-      setErrorMessage(`Added ${nameObject.name}`)
+      setErrorMessage(`Added '${nameObject.name}'`)
       setTimeout(() =>{
         setErrorMessage(null)
       }, 5000)
