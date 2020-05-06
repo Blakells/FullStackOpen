@@ -10,7 +10,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const hook = () => {
     personService
@@ -47,9 +47,14 @@ const App = () => {
       })
       setErrorMessage(`Added '${nameObject.name}'`)
       setTimeout(() =>{
-        setErrorMessage(null)
+        setErrorMessage('')
       }, 5000)
       }
+    } else if (nameObject.name.length < 3 || nameObject.number.length < 9) {
+      setErrorMessage(`Name is either less than 3 characters or Number is less than 9 characters long`)
+      setTimeout(() =>{
+        setErrorMessage('')
+      }, 5000)
     } else {
       personService
       .create(nameObject)
@@ -58,7 +63,7 @@ const App = () => {
       })
       setErrorMessage(`Added '${nameObject.name}'`)
       setTimeout(() =>{
-        setErrorMessage(null)
+        setErrorMessage('')
       }, 5000)
     }
     setNewName('')

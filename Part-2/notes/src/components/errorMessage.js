@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Notification = ({ message }) => {
-  if (message === null) {
+  if (message.length < 1) {
     return null
   }
 
