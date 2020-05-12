@@ -107,6 +107,24 @@ test('if title/url is missing it does not add the blog', async () => {
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 })
 
+test('if user is unauthorized, adding a blog fails', async() => {
+    const newBlog = {
+        title: 'Discourses',
+        author: 'Epictetus',
+        url: 'discourses.com',
+        upvotes: '49'
+    }
+    //token = 'this is not the right token'
+    await api
+    .post('/api/blogs')
+    //.set('Authorization', `bearer ${token}`)
+    .send(newBlog)
+    .expect(401)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
