@@ -1,10 +1,10 @@
 const app = require('../app')
 const supertest = require('supertest')
 const mongoose = require('mongoose')
-const helper = require('./blogslist_helper')
+const helper = require('./test_helper')
 const api = supertest(app)
-
 const Blog = require('../models/blog')
+let token = ''
 
 beforeEach(async () => {
     await Blog.deleteMany({})
@@ -13,6 +13,14 @@ beforeEach(async () => {
     .map(blog => new Blog(blog))
     const promiseArray = blogObjects.map(blog => blog.save())
     await Promise.all(promiseArray)
+
+    const response =  await api.post('/api/login')
+    .send({
+        username: "root",
+        password: "secret"
+    })
+    token = response.body.token
+    console.log(token)
 })
 
 test('blogs are returned', async () => {
@@ -45,6 +53,7 @@ test('a blog can be added', async () => {
 
     await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(200)
     .expect('Content-Type', /application\/json/)
@@ -67,6 +76,7 @@ test('if upvotes is missing then it defaults to zero', async () => {
 
     await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(200)
     .expect('Content-Type', /application\/json/)
@@ -88,6 +98,7 @@ test('if title/url is missing it does not add the blog', async () => {
 
     await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(newBlog)
     .expect(400)
 
@@ -95,8 +106,6 @@ test('if title/url is missing it does not add the blog', async () => {
 
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 })
-
-
 
 afterAll(() => {
     mongoose.connection.close()
