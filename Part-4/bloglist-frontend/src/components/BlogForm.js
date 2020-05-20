@@ -9,11 +9,11 @@ const BlogForm = ({ createBlog }) => {
     const handleBlogTitle = (event) => {
         setTitle(event.target.value)
       }
-    
+
       const handleBlogAuthor = (event) => {
         setAuthor(event.target.value)
       }
-    
+
       const handleBlogUrl = (event) => {
         setUrl(event.target.value)
       }
@@ -34,13 +34,15 @@ const BlogForm = ({ createBlog }) => {
                 <div>
                 Title:
                 <input
+                id='title'
                 value={newTitle}
                 onChange={handleBlogTitle}
                 />
                 </div>
                 <div>
                 Author:
-                <input 
+                <input
+                id='author'
                 value={newAuthor}
                 onChange={handleBlogAuthor}
                 />
@@ -48,6 +50,7 @@ const BlogForm = ({ createBlog }) => {
                 <div>
                     Url:
                     <input
+                    id='url'
                     value={newUrl}
                     onChange={handleBlogUrl}
                     />

@@ -10,7 +10,7 @@ const Blog = ({ blog , handleUpvote, deleteBlog}) => {
         marginBottom: 5
       }
       const [visible, setVisibie] = useState(false)
-      
+
       const hideWhenVisible = { display: visible ? 'none' : '' }
       const showWhenVisible = { display: visible ? '' : 'none' }
 
@@ -37,16 +37,16 @@ const Blog = ({ blog , handleUpvote, deleteBlog}) => {
 
 return (
     <div style={blogStyle}>
-        <div style={hideWhenVisible}>
+        <div style={hideWhenVisible} className='blog-summary'>
         <p>
         {blog.title} : {blog.author} <button onClick={toggleVisibility}> view</button>
         </p>
     </div>
-    <div style={showWhenVisible}>
+    <div style={showWhenVisible} className='blog-info'>
         <p>Title: {blog.title} <button onClick={toggleVisibility}>hide</button>
         </p>
         <p>URL: {blog.url}</p>
-        <p>Upvotes: {blog.upvotes}<button onClick={addVote}>upvote</button></p>
+        <p>Upvotes: {blog.upvotes}<button onClick={addVote} className='blog-likes'>upvote</button></p>
         <p>Author: {blog.author}</p>
         <button onClick={handleDeletion}>delete</button>
     </div>
