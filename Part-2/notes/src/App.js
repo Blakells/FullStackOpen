@@ -4,7 +4,6 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import NoteForm from './components/NoteForm'
 import Togglable from './components/Togglable'
-import Footer from './components/Footer'
 import noteService from './services/notes'
 import loginService from './services/login'
 
@@ -116,7 +115,7 @@ const App = () => {
       {user === null ?
         loginForm() :
         <div>
-          <p>{user.name} logged in</p>
+          <p>{user.username} logged in</p>
           {noteForm()}
         </div>
       }
@@ -135,8 +134,6 @@ const App = () => {
           />
         )}
       </ul>
-
-      <Footer />
     </div>
   )
 }
