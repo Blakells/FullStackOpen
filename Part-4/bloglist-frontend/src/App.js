@@ -131,8 +131,8 @@ const handleLogout = () => {
           onClick={() => handleLogout()}>logout</button>
           </p>
           {blogForm()}
-          {blogsToShow.map((blog, i) => 
-            <Blog 
+          {blogsToShow.map((blog, i) =>
+            <Blog
             key={i}
             blog={blog}
             handleUpvote={addVote}
