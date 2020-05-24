@@ -39,7 +39,7 @@ return (
     <div style={blogStyle}>
         <div style={hideWhenVisible} className='blog-summary'>
         <p>
-        {blog.title} : {blog.author} <button onClick={toggleVisibility}> view</button>
+        {blog.title} : {blog.author} <button onClick={toggleVisibility} id='view-button'> view</button>
         </p>
     </div>
     <div style={showWhenVisible} className='blog-info'>
@@ -48,7 +48,7 @@ return (
         <p>URL: {blog.url}</p>
         <p>Upvotes: {blog.upvotes}<button onClick={addVote} className='blog-likes'>upvote</button></p>
         <p>Author: {blog.author}</p>
-        <button onClick={handleDeletion}>delete</button>
+        <button onClick={handleDeletion} id='delete-button'>delete</button>
     </div>
     </div>
 )
