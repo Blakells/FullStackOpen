@@ -1,31 +1,31 @@
-export const createNotification = (text) => {
+export const setNotification = (anecdote) => {
   return {
-    type: "CREATE_NOTIFICATION",
+    type: 'SET_NOTIFICATION',
     data: {
-      text
+      content: anecdote
     }
   }
 }
 
-export const clearNotification = (id) => {
+export const deleteNotification = (anecdote) => {
   return {
-    type: 'CLEAR_NOTIFICATION'
+    type: 'DELETE_NOTIFICATION',
+    data: {
+      content: ''
+    }
   }
 }
-const initialState = ['']
-const notificationReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'CREATE_NOTIFICATION':
-      const newState = action.data.text
-      state = newState
+
+const notificationReducer = (state = '', action) => {
+  switch(action.type) {
+    case 'SET_NOTIFICATION':
+      state = action.data.content
       return state
-    case 'CLEAR_NOTIFICATION':
-      const cleared = ''
-      state = cleared
+    case 'DELETE_NOTIFICATION':
+      state = ''
       return state
     default:
       return state
   }
 }
-
 export default notificationReducer

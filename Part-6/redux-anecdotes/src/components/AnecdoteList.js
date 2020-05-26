@@ -1,32 +1,29 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import {addVote} from '../reducers/anecdoteReducer'
-import { createNotification , clearNotification} from '../reducers/notificationReducer'
+import { addVote } from '../reducers/anecdoteReducer'
+import { setNotification, deleteNotification } from '../reducers/notificationReducer'
 
 const AnecdoteList = () => {
-    const anecdotes = useSelector(state => state.anecdotes)
-    const dispatch = useDispatch()
-
-    const timer = () => {
-      return (dispatch) => {
-        setTimeout(() => {
-          dispatch(clearNotification())
-        }, 5000)
-    }}
-
-    const vote = (anecdote) => {
-    console.log('vote', anecdote.id)
-    dispatch(addVote(anecdote.id))
-    dispatch(createNotification(`you voted "${anecdote.content}"`))
-    dispatch(timer())
-  }
-
-  const sorter = anecdotes.sort((a,b) => {
-    return b.votes - a.votes
+  const anecdotes = useSelector(state => {
+    return state.anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(state.filter.toLowerCase()))
   })
-    return (
-        <div>
-      {sorter.map(anecdote =>
+const dispatch = useDispatch()
+
+const vote = (anecdote) => {
+  console.log('vote', anecdote.content)
+  dispatch(addVote(anecdote.id))
+  dispatch(setNotification(`voted for: "${anecdote.content}"`))
+  setTimeout(() => {
+    dispatch(deleteNotification())
+  }, 5000)
+}
+
+const sorted = anecdotes.sort((a, b) => {
+  return b.votes - a.votes
+})
+  return (
+    <div>
+      {sorted.map(anecdote =>
         <div key={anecdote.id}>
           <div>
             {anecdote.content}
@@ -37,8 +34,8 @@ const AnecdoteList = () => {
           </div>
         </div>
       )}
-      </div>
-    )
+    </div>
+  )
 }
 
 export default AnecdoteList
