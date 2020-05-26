@@ -1,29 +1,30 @@
-export const setNotification = (anecdote) => {
-  return {
-    type: 'SET_NOTIFICATION',
-    data: {
-      content: anecdote
-    }
+export const setNotification = (text, seconds) => {
+  return async dispatch => {
+    const timer = setTimeout(() => {
+      dispatch(deleteNotification())
+    }, seconds * 1000)
+    dispatch({
+      type: 'SET_NOTIFICATION',
+      data: {text, timer}
+    })
   }
 }
 
-export const deleteNotification = (anecdote) => {
+export const deleteNotification = () => {
   return {
     type: 'DELETE_NOTIFICATION',
-    data: {
-      content: ''
-    }
   }
 }
 
-const notificationReducer = (state = '', action) => {
+const notificationReducer = (state = {text : 'welcome', timer: null}, action) => {
   switch(action.type) {
     case 'SET_NOTIFICATION':
-      state = action.data.content
-      return state
+      if (state.timer !== null) {
+        clearTimeout(state.timer)
+      }
+      return { text: action.data.text, timer: action.data.timer}
     case 'DELETE_NOTIFICATION':
-      state = ''
-      return state
+      return {text: '', timer: null}
     default:
       return state
   }
