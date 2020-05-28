@@ -1,10 +1,14 @@
 import React, {useState} from 'react';
 import {Route, Switch, Link, useRouteMatch, useHistory, Redirect} from 'react-router-dom'
+import {Container, TableContainer, Table, TableBody,TableCell,TableRow,Paper, TextField, Button, AppBar, Toolbar, IconButton} from '@material-ui/core'
+import {Alert} from '@material-ui/lab'
+
 
 const Home = () => {
   return (
     <div>
       <h2>Blake's Notes App</h2>
+      <p>Please Log In to View/Create Notes!</p>
     </div>
   )
 }
@@ -23,12 +27,22 @@ const Notes = ({ notes }) => {
   return (
     <div>
       <h2>Notes</h2>
-      <ul>
-        {notes.map(note =>
-          <li key={note.id}>
-            <Link to={`/notes/${note.id}`}>{note.content}</Link>
-          </li>)}
-      </ul>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {notes.map(note => (
+              <TableRow key={note.id}>
+                <TableCell>
+                  <Link to={`/notes/${note.id}`}>{note.content}</Link>
+                </TableCell>
+                <TableCell>
+                  {note.user}
+                </TableCell>
+              </TableRow>))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   )
 }
@@ -59,12 +73,12 @@ const handleChange = (event) => {
       <h2>login</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          username : <input id='user' onChange={handleChange}/>
+          <TextField label='username'  onChange={handleChange}/>
         </div>
         <div>
-          password : <input type='password'/>
+          <TextField label='password' type='password'/>
         </div>
-        <button type='submit'>login</button>
+        <Button variant='contained' color='primary' type='submit'>login</Button>
       </form>
     </div>
   )
@@ -97,9 +111,14 @@ const App = () => {
   const note = match ? notes.find(note => note.id === Number(match.params.id)) : null
 
   const [user,setUser] = useState(null)
+  const [message, setMessage] = useState(null)
 
   const login = (user) => {
     setUser(user)
+    setMessage(`welcome ${user}`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 3000)
   }
 
   const padding = {
@@ -107,13 +126,33 @@ const App = () => {
   }
 
   return (
+    <Container>
+      {(message &&
+    <Alert severity="success">
+      {message}
+    </Alert>
+  )}
     <div>
-    <div>
-      <Link style={padding} to='/'>home</Link>
-      <Link style={padding} to='/notes'>notes</Link>
-      <Link style={padding} to='/users'>users</Link>
-      {user ? <h4>{user} logged in</h4> : <Link to='/login'>login</Link>}
-    </div>
+      <AppBar position='static'>
+        <Toolbar>
+          <IconButton edge='start' color='inherit' aria-label='menu'></IconButton>
+          <Button color='inherit' component={Link} to='/'>
+            home
+          </Button>
+          <Button color='inherit' component={Link} to='/notes'>
+            notes
+          </Button>
+          <Button color='inherit' component={Link} to='/users'>
+            users
+          </Button>
+          {user
+      ? <em>{user} logged in</em>
+      : <Button color="inherit" component={Link} to="/login">
+          login
+        </Button>
+    }
+        </Toolbar>
+      </AppBar>
     <Switch>
       <Route path='/notes/:id'>
         <Note note={note}/>
@@ -132,6 +171,7 @@ const App = () => {
       </Route>
     </Switch>
     </div>
+    </Container>
 
   )
 }
