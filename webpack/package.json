@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "practising webpack",
   "scripts": {
-    "server":"json-server -p3001 --watch db.json",
+    "server": "json-server -p3001 --watch db.json",
     "build": "webpack --mode=production",
     "start": "webpack-dev-server --mode=development"
   },

@@ -1,6 +1,14 @@
 const path = require('path')
+const webpack = require('webpack')
 
-const config = {
+const config = (env, argv) => {
+  console.log('argv', argv.mode)
+
+  const backend_url= argv.mode === 'production' ? 
+  'https://blooming-atoll-75500.herokuapp.com/api/notes' :
+  'http://localhost:3001/api/notes'
+
+  return {
   entry: ['@babel/polyfill', './src/index.js'],
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -26,7 +34,13 @@ const config = {
       compress: true,
       port: 3000
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    plugins: [
+      new webpack.DefinePlugin({
+        BACKEND_URL: JSON.stringify(backend_url)
+      })
+    ]
+  }
 }
 
 module.exports = config

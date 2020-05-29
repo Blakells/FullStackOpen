@@ -23,7 +23,7 @@ const Blog = ({ blog , handleUpvote, deleteBlog}) => {
           handleUpvote({
               ...blog,
               user: blog.user.id,
-              upvotes: ++blog.upvotes
+              upvotes: blog.upvotes + 1
           })
       }
 
@@ -31,7 +31,7 @@ const Blog = ({ blog , handleUpvote, deleteBlog}) => {
           event.preventDefault()
           const shouldDelete = window.confirm(`remove blog ${blog.title}?`)
           if (shouldDelete) {
-              deleteBlog(blog.id)
+              deleteBlog(blog)
           }
       }
 

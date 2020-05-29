@@ -1,58 +1,42 @@
-import React, {useState} from 'react'
+import React from 'react'
 
-const BlogForm = ({ createBlog }) => {
-    const [newBlog, setNewBlog] = useState('')
-    const [newTitle, setTitle] = useState('')
-    const [newAuthor, setAuthor] = useState('')
-    const [newUrl, setUrl] = useState('')
+const BlogForm = (props) => {
 
-    const handleBlogTitle = (event) => {
-        setTitle(event.target.value)
-      }
-
-      const handleBlogAuthor = (event) => {
-        setAuthor(event.target.value)
-      }
-
-      const handleBlogUrl = (event) => {
-        setUrl(event.target.value)
-      }
-
-      const addBlog = (event) => {
+      const newBlog = async (event) => {
         event.preventDefault()
-        createBlog({
-          title: newTitle,
-          author: newAuthor,
-          url: newUrl
+        let title = event.target.title.value
+        let author = event.target.author.value
+        let url = event.target.url.value
+        console.log(title)
+        props.addBlog({
+          title: title,
+          author: author,
+          url: url
         })
-        setNewBlog('')
         }
 
     return (
         <div>
-            <form onSubmit={addBlog}>
+            <form onSubmit={newBlog}>
                 <div>
                 Title:
                 <input
                 id='title'
-                value={newTitle}
-                onChange={handleBlogTitle}
+                name='title'
                 />
                 </div>
                 <div>
                 Author:
                 <input
                 id='author'
-                value={newAuthor}
-                onChange={handleBlogAuthor}
+                name='author'
                 />
                 </div>
                 <div>
                     Url:
                     <input
                     id='url'
-                    value={newUrl}
-                    onChange={handleBlogUrl}
+                    name='url'
                     />
                 </div>
                 <button type='submit'>add blog</button>
