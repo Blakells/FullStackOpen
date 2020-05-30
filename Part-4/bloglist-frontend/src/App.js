@@ -4,9 +4,10 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
-import blogService from './services/blogs'
-import { addBlog, initializeBlogs, addBlogVote, deleteBlog } from './reducers/blogReducer'
+import UserPage from './components/UserPage'
+import { addBlog, initializeBlogs, addBlogVote, deleteBlog, showAllBlogs } from './reducers/blogReducer'
 import {useDispatch, useSelector} from 'react-redux'
+import {BrowserRouter as Router, Switch, Route, Link, Redirect, useRouteMatch} from 'react-router-dom'
 import { tryLogin, tryTokenLogin, logout} from './reducers/loginReducer'
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
   const blogs = useSelector(state => state.blogs)
   const notification = useSelector(state => state.notifications)
   const user = useSelector(state => state.login)
+  const users = useSelector(state => state.users)
 
 
   useEffect(() => {
@@ -51,7 +53,6 @@ const App = () => {
     dispatch(addBlog(blog))
   }
 
-  console.log(blogService.getAll())
 
 let blogsToShow
 if (user === null) {
@@ -68,10 +69,58 @@ const handleLogout = () => {
   dispatch(logout())
 }
 
+  const padding = {
+  paddingRight: 5
+}
+
+// const match = useRouteMatch('/users/:id')
+// const findUser = match ? users.find(user => user.id === match.params.id) : null
+
+
   return (
     <div>
       <Notification message={notification.text}clas='green'/>
-      {user === null ?
+      <Router>
+        <div>
+        <Link to='/users' style={padding}>users</Link>
+        <Link to='/' style={padding}>blogs</Link>
+        <Link to='/login' style={padding}>login</Link>
+        </div>
+        <h1>Blogs</h1>
+
+        <Switch>
+          <Route path='/login'>
+            {user === null ? loginForm() : <Redirect to='/' />}
+          </Route>
+          <Route path='/users'>
+          {user ? <div>{user.name} logged in <button 
+            type='submit'
+            onClick={() => handleLogout()}>
+              logout
+              </button></div> : ''}
+            <UserPage />
+          </Route>
+          <Route path='/'>
+            {user ? <div>{user.name} logged in 
+            <button 
+            type='submit'
+            onClick={() => handleLogout()}>
+              logout
+              </button>
+              {blogsToShow.map((blog, i) =>
+            <Blog
+            key={i}
+            blog={blog}
+            handleUpvote={addVote}
+            deleteBlog={handleBlogDelete}
+            />
+            )}
+              </div> :
+              ''}
+          </Route>
+        </Switch>
+      </Router>
+      {/* {user === null ?
        loginForm() :
         <div>
           <h1>Blogs</h1>
@@ -89,7 +138,7 @@ const handleLogout = () => {
             />
             )}
             </div>
-      }
+      } */}
     </div>
   )
 }

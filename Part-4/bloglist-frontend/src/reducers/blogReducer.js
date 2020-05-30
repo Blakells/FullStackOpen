@@ -38,6 +38,16 @@ export const addBlogVote = (blog) => {
     }
 }
 
+export const showAllBlogs = () => {
+    return async dispatch => {
+        const blogs = await blogService.getAll()
+        dispatch({
+            type: 'SHOW',
+            data: blogs
+        })
+    }
+}
+
 export const deleteBlog = (blog) => {
     return async dispatch => {
         await blogService.remove(blog)
@@ -65,6 +75,8 @@ const reducer = (state = [], action) => {
                 upvotes: Number(blogToUpdate.upvotes) + 1
             }
             return state.map( s => s.id !== id ? s : changedBlog)
+        case 'SHOW':
+            return action.data
         case 'DELETE':
             return state.filter(s => s.id !== action.data.id)
         default:
