@@ -12,6 +12,16 @@ export const addBlog = (blog) => {
 
 }
 
+export const updateBlog = (blog) => {
+    return async dispatch => {
+        const data = await blogService.update(blog)
+        dispatch({
+            type: 'UPDATE_BLOG',
+            data
+        })
+    }
+}
+
 export const initializeBlogs = () => {
     return async dispatch => {
         const blogs = await blogService.getAll()
@@ -58,6 +68,19 @@ export const deleteBlog = (blog) => {
     }
 }
 
+export const addComment = (blog) => {
+    return async dispatch => {
+        const comment = await blogService.addComment(blog.id, blog.comment)
+        dispatch({
+            type: 'ADD_COMMENT',
+            data : {
+                id: blog.id,
+                comment: comment
+            }
+        })
+    }
+}
+
 
 const reducer = (state = [], action) => {
    // console.log('state:', state)
@@ -67,6 +90,9 @@ const reducer = (state = [], action) => {
             return state.concat(action.data)
         case 'INIT_BLOGS':
             return action.data
+        case 'UPDATE_BLOG':
+            return state.map(b => 
+                b.id === action.data.id ? action.data : b)
         case 'VOTE':
             const id = action.data.id
             const blogToUpdate = state.find(n => n.id === id)
@@ -75,6 +101,13 @@ const reducer = (state = [], action) => {
                 upvotes: Number(blogToUpdate.upvotes) + 1
             }
             return state.map( s => s.id !== id ? s : changedBlog)
+        case 'ADD_COMMENT':
+            return state.map(b =>
+                b.id === action.data.id ? {
+                  ...b,
+                  comments: b.comments.concat(action.data.comment)
+                } : b
+              )
         case 'SHOW':
             return action.data
         case 'DELETE':

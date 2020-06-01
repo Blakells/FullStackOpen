@@ -1,15 +1,27 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { Message } from 'semantic-ui-react'
 
-const Notification = ({ message, clas }) => {
-    if (message === '') {
-        return null
-    }
+const Notification = ({ notification }) => {
+  if (!notification.message || notification.message.trim() === '') {
+    return null
+  }
+  
+  if (notification.style === 'error') {
+    return (<Message negative>{notification.message}</Message>)
+  }
 
-    return (
-        <div className={clas}>
-        {message}
-        </div>
-    )
+  return (<Message positive>{notification.message}</Message>)
+
 }
 
-export default Notification
+Notification.propTypes = {
+  notification: PropTypes.object
+}
+
+const mapStateToProps = (state) => {
+  return { notification: state.notification }
+}
+
+export default connect(mapStateToProps)(Notification)

@@ -1,9 +1,13 @@
 import axios from 'axios'
 const baseUrl = '/api/users'
 
-const getUsers = async () => {
+const getAll = async () => {
     const res = await axios.get(baseUrl)
     return res.data
 }
 
-export default {getUsers}
+const createUser = async (newObj) => {
+    const res = await axios.post(baseUrl, newObj)
+    return res.data
+}
+export default {getAll, createUser}

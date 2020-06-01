@@ -1,63 +1,103 @@
-import React, {useState} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { Button, Divider, Header, Input, Icon, List } from 'semantic-ui-react'
+import useField from '../hooks/index'
+import { updateBlog, deleteBlog, addComment } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
 
-const Blog = ({ blog , handleUpvote, deleteBlog}) => {
-    const blogStyle = {
-        paddingTop: 10,
-        paddingLeft: 2,
-        border: 'solid',
-        borderWidth: 1,
-        marginBottom: 5
-      }
-      const [visible, setVisibie] = useState(false)
+const Blog = (props) => {
+  const comment = useField('text')
 
-      const hideWhenVisible = { display: visible ? 'none' : '' }
-      const showWhenVisible = { display: visible ? '' : 'none' }
+  const blog = props.blog
+  if (!blog) return null
 
-      const toggleVisibility = () => {
-          setVisibie(!visible)
-      }
-
-      const addVote = (event) => {
-          event.stopPropagation()
-          handleUpvote({
-              ...blog,
-              user: blog.user.id,
-              upvotes: blog.upvotes + 1
-          })
-      }
-
-      const handleDeletion = (event) => {
-          event.preventDefault()
-          const shouldDelete = window.confirm(`remove blog ${blog.title}?`)
-          if (shouldDelete) {
-              deleteBlog(blog)
-          }
-      }
-
-return (
-    <div style={blogStyle}>
-        <div style={hideWhenVisible} className='blog-summary'>
-        <p>
-        {blog.title} : {blog.author} <button onClick={toggleVisibility} id='view-button'> view</button>
-        </p>
-    </div>
-    <div style={showWhenVisible} className='blog-info'>
-        <p>Title: {blog.title} <button onClick={toggleVisibility}>hide</button>
-        </p>
-        <p>URL: {blog.url}</p>
-        <p>Upvotes: {blog.upvotes}<button onClick={addVote} className='blog-likes'>upvote</button></p>
-        <p>Author: {blog.author}</p>
-        <button onClick={handleDeletion} id='delete-button'>delete</button>
-    </div>
-    </div>
-)
+  const update = async (blog) => {
+    try {
+      await props.updateBlog(blog)
+      props.setNotification({
+        message: `blog "${blog.title}" updated`,
+        style: null
+      }, 2000)
+    } catch (exception) {
+      props.setNotification({
+        message: 'failed to update the blog',
+        style: 'error'
+      }, 2000)
     }
+  }
 
-    Blog.propTypes = {
-        blog: PropTypes.object.isRequired,
-        handleUpvote: PropTypes.func.isRequired,
-        deleteBlog: PropTypes.func.isRequired
+  const like = () =>
+    update({
+      id: blog.id,
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      upvotes: Number(blog.upvotes) + 1,
+      user: blog.user ? blog.user.id : null
+    })
+
+  const addComment = async () => {
+    try {
+      await props.addComment({
+        id: blog.id,
+        comment: comment.input.value
+      })
+      comment.reset()
+      props.setNotification({
+        message: 'new comment added',
+        style: null
+      }, 2000)
+    } catch (exception) {
+      props.setNotification({
+        message: 'failed to add a new comment',
+        style: 'error'
+      }, 2000)
     }
+  }
 
-export default Blog
+  return (
+    <div>
+      <Header as='h2'>{blog.title} {blog.author}</Header>
+      <p>
+        blog has {blog.upvotes} like(s) <Button id='like-button' compact icon onClick={like}>
+          <Icon name='like' />
+          like
+        </Button>
+      </p>
+      <p>added by {blog.user ? blog.user.name : '?'}</p>
+      <Divider />
+      <Header as='h3'>comments</Header>
+      <Input id='new-comment' {...comment.input} action={
+        <Button id='save-comment' primary onClick={addComment}>add comment</Button>
+      } />
+      <List>
+        {
+          blog.comments.map(comment =>
+            <List.Item key={comment.id}>
+              <List.Icon name='comment outline' />
+              <List.Content>{comment.comment}</List.Content>
+            </List.Item>
+          )
+        }
+      </List>
+    </div>
+  )
+}
+
+const mapDispatchToProps = {
+  updateBlog,
+  deleteBlog,
+  addComment,
+  setNotification
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object,
+  updateBlog: PropTypes.func.isRequired,
+  removeBlog: PropTypes.func.isRequired,
+  addComment: PropTypes.func.isRequired,
+  setNotification: PropTypes.func.isRequired
+}
+
+export default connect(null, mapDispatchToProps)(Blog)

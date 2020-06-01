@@ -1,148 +1,200 @@
-import React, { useEffect} from 'react'
+import React, { useEffect } from 'react'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Container, Divider, Header, Icon, Button, Segment, Form } from 'semantic-ui-react'
+import Navigation from './components/Navigation'
 import Blog from './components/Blog'
+import BlogList from './components/BlogList'
+import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
-import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
-import UserPage from './components/UserPage'
-import { addBlog, initializeBlogs, addBlogVote, deleteBlog, showAllBlogs } from './reducers/blogReducer'
-import {useDispatch, useSelector} from 'react-redux'
-import {BrowserRouter as Router, Switch, Route, Link, Redirect, useRouteMatch} from 'react-router-dom'
-import { tryLogin, tryTokenLogin, logout} from './reducers/loginReducer'
+import UserList from './components/UserPage'
+import User from './components/User'
+import useField from './hooks/index'
+import { login, fetchUser } from './reducers/loginReducer'
+import { initializeBlogs } from './reducers/blogReducer'
+import { setNotification } from './reducers/notificationReducer'
+import { initializeUsers, addUser } from './reducers/userReducer'
 
-const App = () => {
-  const dispatch = useDispatch()
-  const blogs = useSelector(state => state.blogs)
-  const notification = useSelector(state => state.notifications)
-  const user = useSelector(state => state.login)
-  const users = useSelector(state => state.users)
+const App = (props) => {
+  const fetchBlogs = props.initializeBlogs
+  const fetchUsers = props.initializeUsers
+  const fetchUser = props.fetchUser
 
+  const username = useField('text')
+  const password = useField('password')
+  const signupUsername = useField('text')
+  const signupPassword = useField('text')
+  const name = useField('text')
 
-  useEffect(() => {
-    dispatch(tryTokenLogin())
-  }, [dispatch])
+  useEffect(() => { fetchUser() }, [fetchUser])
+  useEffect(() => { fetchBlogs() }, [fetchBlogs])
+  useEffect(() => { fetchUsers() }, [fetchUsers])
 
-  useEffect(() => {
-    dispatch(initializeBlogs())
-  }, [dispatch])
-
-  const handleLogin = (event) => {
-    event.preventDefault()    
-    let username = event.target.username.value
-    let password = event.target.password.value
-    dispatch(tryLogin({username, password}))
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      await props.login({
+        username: username.input.value,
+        password: password.input.value
+      })
+      username.reset()
+      password.reset()
+      props.setNotification({
+        message: 'Success!',
+      }, 5000)
+    } catch (exception) {
+      props.setNotification({
+        message: 'wrong username or password',
+        style: 'error'
+      }, 5000)
+    }
   }
 
-  const addVote = (blogObject) => {
-    dispatch(addBlogVote(blogObject))
+  const handleSignup = async (event) => {
+    event.preventDefault()
+    try {
+      await props.addUser({
+        username: signupUsername.input.value,
+        password: signupPassword.input.value,
+        name: name.input.value
+      })
+      signupUsername.reset()
+      signupPassword.reset()
+      name.reset()
+      props.setNotification({
+        message: 'Success! Please go to the login form and login!',
+      }, 5000)
+    } catch (error) {
+      props.setNotification({
+        message: 'please try again',
+        style: 'error'
+      }, 5000)
+    }
+
   }
 
-  const handleBlogDelete = (blog) => {
-    dispatch(deleteBlog(blog))
-  }
+  const signupForm = () => (
+    <Segment>
+      <Form onSubmit={handleSignup}>
+        <Form.Field>
+          <label>username</label>
+          <input id='signup-username' {...signupUsername.input} />
+        </Form.Field>
+        <Form.Field>
+          <label>name</label>
+          <input id='name' {...name.input} />
+        </Form.Field>
+        <Form.Field>
+          <label>password</label>
+          <input id='signup-password' {...signupPassword.input} />
+        </Form.Field>
+        <Button primary type="submit">signup</Button>
+      </Form>
+    </Segment>
+  )
 
   const loginForm = () => (
-    <Togglable buttonLabel='login'>
-      <LoginForm
-      handleSubmit={handleLogin}
-      />
-    </Togglable>
+    <Segment>
+      <Form onSubmit={handleLogin}>
+        <Form.Field>
+          <label>username</label>
+          <input id='username' {...username.input} />
+        </Form.Field>
+        <Form.Field>
+          <label>password</label>
+          <input id='password' {...password.input} />
+        </Form.Field>
+        <Button primary type="submit">login</Button>
+      </Form>
+    </Segment>
   )
 
-  const handleBlogCreate = (blog) => {
-    dispatch(addBlog(blog))
-  }
+  const blogById = (id) =>
+    props.blogs.find(blog => blog.id === id)
 
-
-let blogsToShow
-if (user === null) {
-blogsToShow = null
-} else {
-  blogs.sort((a, b) => {
-    return b.upvotes - a.upvotes
-  })
-  blogsToShow = blogs.filter(blog => blog.user.username === user.username)
-
-}
-
-const handleLogout = () => {
-  dispatch(logout())
-}
-
-  const padding = {
-  paddingRight: 5
-}
-
-// const match = useRouteMatch('/users/:id')
-// const findUser = match ? users.find(user => user.id === match.params.id) : null
-
+  const userById = (id) =>
+    props.users.find(user => user.id === id)
 
   return (
-    <div>
-      <Notification message={notification.text}clas='green'/>
-      <Router>
+    <Container>
+      <div>
+      </div>
+      {
+        props.loggedUser === null ? 
         <div>
-        <Link to='/users' style={padding}>users</Link>
-        <Link to='/' style={padding}>blogs</Link>
-        <Link to='/login' style={padding}>login</Link>
-        </div>
-        <h1>Blogs</h1>
-
-        <Switch>
-          <Route path='/login'>
-            {user === null ? loginForm() : <Redirect to='/' />}
-          </Route>
-          <Route path='/users'>
-          {user ? <div>{user.name} logged in <button 
-            type='submit'
-            onClick={() => handleLogout()}>
-              logout
-              </button></div> : ''}
-            <UserPage />
-          </Route>
-          <Route path='/'>
-            {user ? <div>{user.name} logged in 
-            <button 
-            type='submit'
-            onClick={() => handleLogout()}>
-              logout
-              </button>
-              {blogsToShow.map((blog, i) =>
-            <Blog
-            key={i}
-            blog={blog}
-            handleUpvote={addVote}
-            deleteBlog={handleBlogDelete}
-            />
-            )}
-              </div> :
-              ''}
-          </Route>
-        </Switch>
-      </Router>
-      {/* {user === null ?
-       loginForm() :
-        <div>
-          <h1>Blogs</h1>
-          <p>{user.name} logged in <button
-          type='submit'
-          onClick={() => handleLogout()}>logout</button>
-          </p>
-          <BlogForm addBlog={handleBlogCreate}/>
-          {blogsToShow.map((blog, i) =>
-            <Blog
-            key={i}
-            blog={blog}
-            handleUpvote={addVote}
-            deleteBlog={handleBlogDelete}
-            />
-            )}
-            </div>
-      } */}
-    </div>
+                <h2>Welcome to my Blog Application!</h2>
+        <h4>If you already have a profile, please log in! If you are new, please signup to create your profile, and then log in!</h4>
+        <Notification />
+        <Togglable buttonLabel='Sign Up'>
+        {signupForm()}
+      </Togglable>
+          <Togglable buttonLabel='Log In'>
+          {loginForm()}
+        </Togglable>
+        </div> :
+          <Router>
+            <Navigation />
+            <Header as='h1'>
+              <Icon name='newspaper outline'/>
+              <Header.Content>blog app</Header.Content>
+            </Header>
+            <Notification />
+            <Divider />
+            <Route exact path='/' render={() =>
+              <div>
+                <Segment>
+                  <Togglable buttonLabel='create a new blog'>
+                    <BlogForm />
+                  </Togglable>
+                </Segment>
+                <BlogList />
+              </div>
+            } />
+            <Route exact path='/users' render={() => <UserList /> } />
+            <Route path='/users/:id' render={({ match }) => 
+              <User user={userById(match.params.id)} />
+            } />
+            <Route path='/blogs/:id' render={({ match }) => 
+              <Blog blog={blogById(match.params.id)} />
+            } />
+          </Router>
+      }
+    </Container>
   )
 }
 
+const sortedBlogs = ({ blogs }) => {
+  return blogs.sort((b1, b2) => b2.upvotes - b1.upvotes)
+}
 
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.loggedUser,
+    blogs: sortedBlogs(state),
+    users: state.users
+  }
+}
 
-export default App;
+const mapDispatchToProps = {
+  fetchUser,
+  login,
+  initializeBlogs,
+  initializeUsers,
+  setNotification,
+  addUser
+}
+
+App.propTypes = {
+  loggedUser: PropTypes.object,
+  fetchUser: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
+  initializeBlogs: PropTypes.func.isRequired,
+  initializeUsers: PropTypes.func.isRequired,
+  blogs: PropTypes.array,
+  users: PropTypes.array,
+  setNotification: PropTypes.func.isRequired
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

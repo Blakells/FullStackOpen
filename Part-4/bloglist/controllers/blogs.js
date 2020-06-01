@@ -2,8 +2,11 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const Comment = require('../models/comment')
 blogsRouter.get('/', async (req, res) => {
-    const blogs = await Blog.find({}).populate('user', {username: 1, name: 1})
+    const blogs = await Blog.find({})
+    .populate('user', {username: 1, name: 1})
+    .populate('comments')
     res.json(blogs.map(blog => blog.toJSON()))
 })
 
@@ -82,7 +85,25 @@ blogsRouter.put('/:id', async (req, res) => {
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {new:true})
+    .populate('user', {username: 1, name: 1})
+    .populate('comments')
     res.json(updatedBlog.toJSON())
 })
+// added API request to add comments onto the blog
+blogsRouter.post('/:id/comments', async (request, response, next) => {
+    try {
+      const blog = await Blog.findById(request.params.id)
+      const comment = new Comment({
+        comment: request.body.comment,
+        blog: blog._id
+      })
+      const result = await comment.save()
+      blog.comments = blog.comments.concat(result._id)
+      await blog.save()
+      response.status(201).json(result)
+    } catch (error) {
+      next(error)
+    }
+  })
 
 module.exports = blogsRouter
