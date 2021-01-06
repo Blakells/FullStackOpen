@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.10.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "webpack": "^4.43.0",
